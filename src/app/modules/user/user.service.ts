@@ -78,7 +78,7 @@ const getSingleUser = async (id: string): Promise<IUser | null> => {
 };
 
 const updateUser = async (id: string, payload: Partial<IUser>) => {
-  const isExist = await User.findOne({ _id: id });
+  const isExist = await User.findOne({ id });
 
   if (!isExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found !');
@@ -94,7 +94,7 @@ const updateUser = async (id: string, payload: Partial<IUser>) => {
       (updatedUserData as any)[nameKey] = name[key as keyof typeof name];
     });
   }
-  const result = await User.findOneAndUpdate({ _id: id }, updatedUserData, {
+  const result = await User.findOneAndUpdate({ id }, updatedUserData, {
     new: true,
   });
   return result;
