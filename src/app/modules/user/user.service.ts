@@ -7,6 +7,7 @@ import { IUser, IUserFilters } from './user.interface';
 import { User } from './user.model';
 import { generateBuyerId, generateSellerId } from './user.utils';
 import { IGenericResponse } from '../../../interfaces/common';
+import { StatusCodes } from 'http-status-codes';
 
 const createUser = async (data: IUser): Promise<IUser> => {
   const isExists = await User.exists({ phoneNumber: data.phoneNumber });
@@ -76,8 +77,32 @@ const getSingleUser = async (id: string): Promise<IUser | null> => {
   return result;
 };
 
+const updateUser = async (id: string, payload: Partial<IUser>) => {
+  const isExist = await User.findOne({ _id: id });
+
+  if (!isExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found !');
+  }
+
+  const { name, ...userData } = payload;
+
+  const updatedUserData: Partial<IUser> = { ...userData };
+
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach(key => {
+      const nameKey = `name.${key}` as keyof Partial<IUser>; // `name.fisrtName`
+      (updatedUserData as any)[nameKey] = name[key as keyof typeof name];
+    });
+  }
+  const result = await User.findOneAndUpdate({ _id: id }, updatedUserData, {
+    new: true,
+  });
+  return result;
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
   getSingleUser,
+  updateUser,
 };

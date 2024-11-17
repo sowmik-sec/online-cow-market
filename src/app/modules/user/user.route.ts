@@ -11,6 +11,11 @@ router.post(
 );
 
 router.get('/:id', UserController.getSingleUser);
+router.patch(
+  '/:id',
+  validateRequest(UserValidation.updateUserZodSchema),
+  UserController.updateUser,
+);
 
 router.get('/', UserController.getAllUsers);
 
