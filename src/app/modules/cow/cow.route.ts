@@ -11,7 +11,11 @@ router.post(
 );
 
 router.get('/:id', CowController.getSingleCow);
-router.patch('/:id', CowController.updateCow);
+router.patch(
+  '/:id',
+  validateRequest(CowValidation.updateCowZodSchema),
+  CowController.updateCow,
+);
 router.delete('/:id', CowController.deleteCow);
 
 router.get('/', CowController.getAllCows);
