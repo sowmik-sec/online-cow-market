@@ -36,4 +36,6 @@ export type ICowFilters = {
   label?: string;
   category?: string;
   age?: string;
+  minPrice?: number;
+  maxPrice?: number;
 };
