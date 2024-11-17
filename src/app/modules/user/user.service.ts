@@ -1,8 +1,13 @@
+import ApiError from '../../../errors/ApiErrors';
 import { IUser } from './user.interface';
 import { User } from './user.model';
 import { generateBuyerId, generateSellerId } from './user.utils';
 
 const createUser = async (data: IUser): Promise<IUser> => {
+  const isExists = await User.exists({ phoneNumber: data.phoneNumber });
+  if (isExists) {
+    throw new ApiError(400, 'User already exists');
+  }
   if (data.role === 'buyer') {
     const buyerId = await generateBuyerId();
     data.id = buyerId;
