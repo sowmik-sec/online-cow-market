@@ -6,6 +6,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { cowSearchableFields } from './cow.constant';
 import { ICow, ICowFilters } from './cow.interface';
 import { Cow } from './cow.model';
+import { StatusCodes } from 'http-status-codes';
 
 const createCow = async (data: ICow): Promise<ICow> => {
   const result = (await Cow.create(data)).populate('seller');
@@ -85,8 +86,25 @@ const getSingleCow = async (id: string): Promise<ICow | null | undefined> => {
   return result;
 };
 
+const updateCow = async (id: string, payload: Partial<ICow>) => {
+  // Find the cow by its _id
+  const isExist = await Cow.findById(id);
+
+  if (!isExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Cow not found!');
+  }
+
+  // Directly using payload to update cow data
+  const result = await Cow.findByIdAndUpdate(id, payload, {
+    new: true, // Returns the updated document
+  });
+
+  return result;
+};
+
 export const CowService = {
   createCow,
   getAllCows,
   getSingleCow,
+  updateCow,
 };

@@ -11,6 +11,7 @@ router.post(
 );
 
 router.get('/:id', CowController.getSingleCow);
+router.patch('/:id', CowController.updateCow);
 
 router.get('/', CowController.getAllCows);
 
