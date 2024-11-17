@@ -77,7 +77,16 @@ const getAllCows = async (
   };
 };
 
+const getSingleCow = async (id: string): Promise<ICow | null | undefined> => {
+  const result = (await Cow.findById(id))?.populate({
+    path: 'seller',
+    select: 'name phoneNumber -_id',
+  });
+  return result;
+};
+
 export const CowService = {
   createCow,
   getAllCows,
+  getSingleCow,
 };
