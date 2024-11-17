@@ -100,9 +100,15 @@ const updateUser = async (id: string, payload: Partial<IUser>) => {
   return result;
 };
 
+const deleteUser = async (id: string): Promise<IUser | null> => {
+  const result = await User.findOneAndDelete({ id });
+  return result;
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
   getSingleUser,
   updateUser,
+  deleteUser,
 };
