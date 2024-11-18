@@ -2,9 +2,13 @@ import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../../errors/ApiErrors';
 import { Cow } from '../cow/cow.model';
 import { User } from '../user/user.model';
-import { IOrder } from './order.interface';
-import mongoose from 'mongoose';
+import { IOrder, IOrderFilters } from './order.interface';
+import mongoose, { SortOrder } from 'mongoose';
 import { Order } from './order.model';
+import { IPaginationOptions } from '../../../interfaces/pagination';
+import { IGenericResponse } from '../../../interfaces/common';
+import { paginationHelpers } from '../../../helpers/paginationHelper';
+import { orderSearchableFields } from './order.constant';
 
 const createOrder = async (order: IOrder): Promise<IOrder | null> => {
   const cowId = order.cow;
@@ -72,6 +76,69 @@ const createOrder = async (order: IOrder): Promise<IOrder | null> => {
   return populatedOrder;
 };
 
+const getAllOrders = async (
+  filters: IOrderFilters,
+  paginationOptions: IPaginationOptions,
+): Promise<IGenericResponse<IOrder[]>> => {
+  const { searchTerm, ...filtersData } = filters;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(paginationOptions);
+
+  const andConditions: any[] = [];
+
+  // Searchable fields handling
+  if (searchTerm) {
+    andConditions.push({
+      $or: ['cow.name', 'buyer.name'].map(field => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: 'i',
+        },
+      })),
+    });
+  }
+
+  // Filterable fields handling
+  if (Object.keys(filtersData).length) {
+    Object.entries(filtersData).forEach(([field, value]) => {
+      if (field === 'cow' || field === 'buyer') {
+        // If filtering by ObjectId fields like cow or buyer
+        andConditions.push({
+          [field]: value,
+        });
+      }
+    });
+  }
+
+  const sortConditions: { [key: string]: SortOrder } = {};
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder;
+  }
+
+  const whereConditions =
+    andConditions.length > 0 ? { $and: andConditions } : {};
+
+  // Querying the Order model and populating cow and buyer fields
+  const result = await Order.find(whereConditions)
+    .populate('cow', 'name breed price category location') // Only select necessary fields
+    .populate('buyer', 'name phoneNumber role') // Only select necessary fields
+    .sort(sortConditions)
+    .skip(skip)
+    .limit(limit);
+
+  const total = await Order.countDocuments(whereConditions);
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
 export const OrderService = {
   createOrder,
+  getAllOrders,
 };

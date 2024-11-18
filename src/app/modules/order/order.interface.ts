@@ -8,3 +8,9 @@ export type IOrder = {
 };
 
 export type OrderModel = Model<IOrder, Record<string, unknown>>;
+
+export type IOrderFilters = {
+  searchTerm?: string;
+  cow?: string;
+  buyer?: string;
+};
