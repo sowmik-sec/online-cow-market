@@ -1,6 +1,6 @@
 export type IAdmin = {
   phoneNumber: string;
-  role: ['admin'];
+  role: 'admin';
   password: string;
   name: {
     firstName: string;
