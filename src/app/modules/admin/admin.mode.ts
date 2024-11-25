@@ -63,4 +63,11 @@ adminSchema.statics.isAdminExist = async function (
   );
 };
 
+adminSchema.statics.isPasswordMatched = async function (
+  givenPassword: string,
+  savedPassword: string,
+): Promise<boolean> {
+  return await bcrypt.compare(givenPassword, savedPassword);
+};
+
 export const Admin = model<IAdmin, AdminModel>('Admin', adminSchema);
