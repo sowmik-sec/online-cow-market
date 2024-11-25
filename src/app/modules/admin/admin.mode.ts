@@ -14,7 +14,7 @@ const adminSchema = new Schema<IAdmin, AdminModel>(
     password: {
       type: String,
       required: true,
-      select: false,
+      select: 0,
     },
     name: {
       firstName: {
@@ -53,5 +53,14 @@ adminSchema.pre('save', async function (next) {
   );
   next();
 });
+
+adminSchema.statics.isAdminExist = async function (
+  phoneNumber: string,
+): Promise<IAdmin | null> {
+  return Admin.findOne(
+    { phoneNumber },
+    { phoneNumber: 1, password: 1, role: 1 },
+  );
+};
 
 export const Admin = model<IAdmin, AdminModel>('Admin', adminSchema);
