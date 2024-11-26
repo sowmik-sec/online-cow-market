@@ -9,6 +9,8 @@ import { paginationFields } from '../../../constants/pagination';
 import { ICow } from './cow.interface';
 
 const createCow = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.headers.authorization);
+  console.log(req.user);
   const cow = req.body;
   const result = await CowService.createCow(cow);
   sendResponse(res, {

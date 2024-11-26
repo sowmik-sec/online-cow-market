@@ -10,6 +10,7 @@ const auth =
   (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
+      //   console.log(req.headers);
       if (!token) {
         throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are not authorized');
       }
