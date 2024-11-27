@@ -10,6 +10,9 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { orderSearchableFields } from './order.constant';
 import { Enum_USER_ROLE } from '../../../enums/user';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
 
 const createOrder = async (order: IOrder): Promise<IOrder | null> => {
   const cowId = order.cow;
@@ -153,7 +156,24 @@ const getAllOrders = async (
   };
 };
 
+const getSingleOrder = async (
+  token: string,
+  id: string,
+): Promise<IOrder | null> => {
+  const isVerifiedUser = jwtHelpers.verifyToken(
+    token,
+    config.jwt.secret as Secret,
+  );
+  if (!isVerifiedUser) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized user');
+  }
+  return await Order.findOne({ _id: id, buyer: isVerifiedUser._id }).populate(
+    'cow buyer',
+  );
+};
+
 export const OrderService = {
   createOrder,
   getAllOrders,
+  getSingleOrder,
 };
