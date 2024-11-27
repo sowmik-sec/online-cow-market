@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema, UpdateQuery } from 'mongoose';
 import { IUser, UserModel } from './user.interface';
 import { role } from './user.constant';
 import config from '../../../config';
@@ -60,6 +60,19 @@ userSchema.pre('save', async function (next) {
     user.password,
     Number(config.bcrypt_salt_rounds),
   );
+  next();
+});
+userSchema.pre('updateOne', async function (next) {
+  const update = this.getUpdate();
+
+  if (update && typeof update === 'object' && 'password' in update) {
+    const hashedPassword = await bcrypt.hash(
+      (update as UpdateQuery<any>).password,
+      Number(config.bcrypt_salt_rounds),
+    );
+    (update as UpdateQuery<any>).password = hashedPassword;
+  }
+
   next();
 });
 

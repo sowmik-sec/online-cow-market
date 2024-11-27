@@ -119,6 +119,39 @@ const myProfile = async (token: string): Promise<IUser | null> => {
   );
 };
 
+const updateMyProfile = async (token: string, payload: Partial<IUser>) => {
+  const isVerifiedUser = jwtHelpers.verifyToken(
+    token,
+    config.jwt.secret as Secret,
+  );
+  if (!isVerifiedUser) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized user');
+  }
+  const { id } = isVerifiedUser;
+  console.log(id);
+
+  const isExist = await User.findOne({ id });
+
+  if (!isExist) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found !');
+  }
+
+  const { name, ...userData } = payload;
+
+  const updatedUserData: Partial<IUser> = { ...userData };
+
+  if (name && Object.keys(name).length > 0) {
+    Object.keys(name).forEach(key => {
+      const nameKey = `name.${key}` as keyof Partial<IUser>; // `name.fisrtName`
+      (updatedUserData as any)[nameKey] = name[key as keyof typeof name];
+    });
+  }
+  const result = await User.findOneAndUpdate({ id }, updatedUserData, {
+    new: true,
+  });
+  return result;
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
@@ -126,4 +159,5 @@ export const UserService = {
   updateUser,
   deleteUser,
   myProfile,
+  updateMyProfile,
 };

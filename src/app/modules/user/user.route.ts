@@ -18,6 +18,13 @@ router.get(
   UserController.myProfile,
 );
 
+router.patch(
+  '/my-profile',
+  validateRequest(UserValidation.updateUserZodSchema),
+  auth(Enum_USER_ROLE.BUYER, Enum_USER_ROLE.SELLER),
+  UserController.updateMyProfile,
+);
+
 router.get('/:id', auth(Enum_USER_ROLE.ADMIN), UserController.getSingleUser);
 router.patch(
   '/:id',
