@@ -6,6 +6,10 @@ import config from '../../../config';
 
 const adminSchema = new Schema<IAdmin, AdminModel>(
   {
+    id: {
+      type: String,
+      required: true,
+    },
     phoneNumber: {
       type: String,
       unique: true,

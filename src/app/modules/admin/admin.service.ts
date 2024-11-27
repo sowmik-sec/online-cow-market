@@ -5,9 +5,17 @@ import { Admin } from './admin.mode';
 import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
+import { generateAdminId } from './admin.utils';
 
-const createAdmin = async (admin: IAdmin): Promise<IAdmin> => {
-  return await Admin.create(admin);
+const createAdmin = async (data: IAdmin): Promise<IAdmin> => {
+  const isExists = await Admin.exists({ phoneNumber: data.id });
+  if (isExists) {
+    throw new ApiError(400, 'Admin already exists');
+  }
+  const adminId = await generateAdminId();
+  data.id = adminId;
+  const result = await Admin.create(data);
+  return result;
 };
 
 const loginAdmin = async (
