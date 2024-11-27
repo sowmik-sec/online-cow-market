@@ -10,7 +10,7 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { StatusCodes } from 'http-status-codes';
 
 const createUser = async (data: IUser): Promise<IUser> => {
-  const isExists = await User.exists({ phoneNumber: data.phoneNumber });
+  const isExists = await User.exists({ id: data.id });
   if (isExists) {
     throw new ApiError(400, 'User already exists');
   }

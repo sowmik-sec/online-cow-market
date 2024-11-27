@@ -13,9 +13,7 @@ export type IAdmin = {
 };
 
 export type AdminModel = {
-  isAdminExist(
-    phoneNumber: string,
-  ): Promise<Pick<IAdmin, 'phoneNumber' | 'password' | 'role'>>;
+  isAdminExist(id: string): Promise<Pick<IAdmin, 'id' | 'password' | 'role'>>;
   isPasswordMatched(
     givenPassword: string,
     savedPassword: string,
@@ -23,7 +21,7 @@ export type AdminModel = {
 } & Model<IAdmin>;
 
 export type ILoginAdmin = {
-  phoneNumber: string;
+  id: string;
   password: string;
 };
 

@@ -15,7 +15,7 @@ const createAdminZodSchema = z.object({
 
 const loginAdminZodSchema = z.object({
   body: z.object({
-    phoneNumber: z.string({ required_error: 'Phone number is required' }),
+    id: z.string({ required_error: 'Phone number is required' }),
     password: z.string({ required_error: 'Password is required' }),
   }),
 });

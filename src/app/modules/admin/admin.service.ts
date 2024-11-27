@@ -8,7 +8,7 @@ import { Secret } from 'jsonwebtoken';
 import { generateAdminId } from './admin.utils';
 
 const createAdmin = async (data: IAdmin): Promise<IAdmin> => {
-  const isExists = await Admin.exists({ phoneNumber: data.id });
+  const isExists = await Admin.exists({ id: data.id });
   if (isExists) {
     throw new ApiError(400, 'Admin already exists');
   }
@@ -21,8 +21,8 @@ const createAdmin = async (data: IAdmin): Promise<IAdmin> => {
 const loginAdmin = async (
   payload: ILoginAdmin,
 ): Promise<ILoginAdminResponse> => {
-  const { phoneNumber, password } = payload;
-  const isAdminExist = await Admin.isAdminExist(phoneNumber);
+  const { id, password } = payload;
+  const isAdminExist = await Admin.isAdminExist(id);
   if (!isAdminExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Admin not found');
   }
@@ -32,14 +32,14 @@ const loginAdmin = async (
   ) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Password is incorrect');
   }
-  const { phoneNumber: adminPhoneNumber, role } = isAdminExist;
+  const { role } = isAdminExist;
   const accessToken = jwtHelpers.createToken(
-    { phoneNumber, role },
+    { id, role },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
   );
   const refreshToken = jwtHelpers.createToken(
-    { phoneNumber, role },
+    { id, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_id as string,
   );

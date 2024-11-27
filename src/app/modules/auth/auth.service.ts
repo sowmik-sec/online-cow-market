@@ -11,8 +11,8 @@ import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
 
 const loginUser = async (data: IAuth): Promise<ILoginUserResponse> => {
-  const { phoneNumber, password } = data;
-  const isUserExist = await User.isUserExist(phoneNumber);
+  const { id, password } = data;
+  const isUserExist = await User.isUserExist(id);
   if (!isUserExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
@@ -25,12 +25,12 @@ const loginUser = async (data: IAuth): Promise<ILoginUserResponse> => {
   }
   const { role } = isUserExist;
   const accessToken = jwtHelpers.createToken(
-    { phoneNumber, role },
+    { id, role },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
   );
   const refreshToken = jwtHelpers.createToken(
-    { phoneNumber, role },
+    { id, role },
     config.jwt.refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_id as string,
   );
@@ -52,15 +52,15 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid refresh token');
   }
   // check deleted user's refresh token
-  const { phoneNumber } = verifiedToken;
-  const isUserExist = await User.isUserExist(phoneNumber);
+  const { id } = verifiedToken;
+  const isUserExist = await User.isUserExist(id);
   if (!isUserExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User does not exist');
   }
   // generate new token
   const newAccessToken = jwtHelpers.createToken(
     {
-      phoneNumber,
+      id,
       role: isUserExist.role,
     },
     config.jwt.secret as Secret,
