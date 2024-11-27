@@ -59,9 +59,12 @@ adminSchema.pre('save', async function (next) {
 });
 
 adminSchema.statics.isAdminExist = async function (
-  id: string,
+  phoneNumber: string,
 ): Promise<IAdmin | null> {
-  return Admin.findOne({ id }, { id: 1, password: 1, role: 1 });
+  return Admin.findOne(
+    { phoneNumber },
+    { id: 1, phoneNumber, password: 1, role: 1 },
+  );
 };
 
 adminSchema.statics.isPasswordMatched = async function (

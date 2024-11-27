@@ -64,9 +64,12 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.statics.isUserExist = async function (
-  id: string,
+  phoneNumber: string,
 ): Promise<IUser | null> {
-  return User.findOne({ id }, { id: 1, password: 1, role: 1 });
+  return User.findOne(
+    { phoneNumber },
+    { id: 1, phoneNumber, password: 1, role: 1 },
+  );
 };
 
 userSchema.statics.isPasswordMatched = async function (

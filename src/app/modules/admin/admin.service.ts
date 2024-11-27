@@ -21,8 +21,8 @@ const createAdmin = async (data: IAdmin): Promise<IAdmin> => {
 const loginAdmin = async (
   payload: ILoginAdmin,
 ): Promise<ILoginAdminResponse> => {
-  const { id, password } = payload;
-  const isAdminExist = await Admin.isAdminExist(id);
+  const { phoneNumber, password } = payload;
+  const isAdminExist = await Admin.isAdminExist(phoneNumber);
   if (!isAdminExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Admin not found');
   }
@@ -32,14 +32,14 @@ const loginAdmin = async (
   ) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Password is incorrect');
   }
-  const { role } = isAdminExist;
+  const { role, id } = isAdminExist;
   const accessToken = jwtHelpers.createToken(
-    { id, role },
+    { id, role, phoneNumber },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
   );
   const refreshToken = jwtHelpers.createToken(
-    { id, role },
+    { id, role, phoneNumber },
     config.jwt.refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_id as string,
   );

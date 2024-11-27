@@ -1,5 +1,5 @@
 export type IAuth = {
-  id: string;
+  phoneNumber: string;
   password: string;
 };
 

@@ -11,8 +11,8 @@ import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
 
 const loginUser = async (data: IAuth): Promise<ILoginUserResponse> => {
-  const { id, password } = data;
-  const isUserExist = await User.isUserExist(id);
+  const { phoneNumber, password } = data;
+  const isUserExist = await User.isUserExist(phoneNumber);
   if (!isUserExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
@@ -23,14 +23,14 @@ const loginUser = async (data: IAuth): Promise<ILoginUserResponse> => {
   if (!isPasswordMatched) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized user');
   }
-  const { role } = isUserExist;
+  const { id, role } = isUserExist;
   const accessToken = jwtHelpers.createToken(
-    { id, role },
+    { id, role, phoneNumber },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
   );
   const refreshToken = jwtHelpers.createToken(
-    { id, role },
+    { id, role, phoneNumber },
     config.jwt.refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_id as string,
   );
@@ -47,13 +47,12 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
       token,
       config.jwt.refresh_secret as string,
     );
-    console.log(verifiedToken);
   } catch (error) {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid refresh token');
   }
   // check deleted user's refresh token
-  const { id } = verifiedToken;
-  const isUserExist = await User.isUserExist(id);
+  const { id, phoneNumber } = verifiedToken;
+  const isUserExist = await User.isUserExist(phoneNumber);
   if (!isUserExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User does not exist');
   }
@@ -62,6 +61,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     {
       id,
       role: isUserExist.role,
+      phoneNumber,
     },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
