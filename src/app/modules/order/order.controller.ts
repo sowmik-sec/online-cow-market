@@ -22,7 +22,17 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, orderFilterableFields);
   const paginationOptions = pick(req.query, paginationFields);
-  const result = await OrderService.getAllOrders(filters, paginationOptions);
+
+  console.log(req.user);
+  const userRole = req?.user.role;
+  const userId = req?.user._id;
+
+  const result = await OrderService.getAllOrders(
+    filters,
+    paginationOptions,
+    userRole,
+    userId,
+  );
   sendResponse<IOrder[]>(res, {
     success: true,
     statusCode: StatusCodes.OK,

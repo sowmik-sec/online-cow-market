@@ -23,14 +23,14 @@ const loginUser = async (data: IAuth): Promise<ILoginUserResponse> => {
   if (!isPasswordMatched) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized user');
   }
-  const { id, role } = isUserExist;
+  const { _id, id, role } = isUserExist;
   const accessToken = jwtHelpers.createToken(
-    { id, role, phoneNumber },
+    { _id, id, role, phoneNumber },
     config.jwt.secret as Secret,
     config.jwt.jwt_expires_in as string,
   );
   const refreshToken = jwtHelpers.createToken(
-    { id, role, phoneNumber },
+    { _id, id, role, phoneNumber },
     config.jwt.refresh_secret as Secret,
     config.jwt.jwt_refresh_expires_id as string,
   );
@@ -51,7 +51,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
     throw new ApiError(StatusCodes.FORBIDDEN, 'Invalid refresh token');
   }
   // check deleted user's refresh token
-  const { id, phoneNumber } = verifiedToken;
+  const { _id, id, phoneNumber } = verifiedToken;
   const isUserExist = await User.isUserExist(phoneNumber);
   if (!isUserExist) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User does not exist');
@@ -59,6 +59,7 @@ const refreshToken = async (token: string): Promise<IRefreshTokenResponse> => {
   // generate new token
   const newAccessToken = jwtHelpers.createToken(
     {
+      _id,
       id,
       role: isUserExist.role,
       phoneNumber,

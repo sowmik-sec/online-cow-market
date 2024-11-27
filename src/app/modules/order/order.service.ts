@@ -9,6 +9,7 @@ import { IPaginationOptions } from '../../../interfaces/pagination';
 import { IGenericResponse } from '../../../interfaces/common';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { orderSearchableFields } from './order.constant';
+import { Enum_USER_ROLE } from '../../../enums/user';
 
 const createOrder = async (order: IOrder): Promise<IOrder | null> => {
   const cowId = order.cow;
@@ -79,6 +80,8 @@ const createOrder = async (order: IOrder): Promise<IOrder | null> => {
 const getAllOrders = async (
   filters: IOrderFilters,
   paginationOptions: IPaginationOptions,
+  userRole: string,
+  userId: string,
 ): Promise<IGenericResponse<IOrder[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -109,6 +112,18 @@ const getAllOrders = async (
       }
     });
   }
+
+  console.log(userRole, userId);
+  // Role-based filtering
+  if (userRole === Enum_USER_ROLE.BUYER) {
+    andConditions.push({ buyer: userId });
+  } else if (userRole === Enum_USER_ROLE.SELLER) {
+    const cows = await Cow.find({ seller: userId }).select('_id'); // Fetch cow IDs for the seller
+    const cowIds = cows.map(cow => cow._id); // Extract the IDs
+
+    andConditions.push({ cow: { $in: cowIds } }); // Match orders where cow is in the seller's list
+  }
+  // Admin has no additional filters
 
   const sortConditions: { [key: string]: SortOrder } = {};
   if (sortBy && sortOrder) {
