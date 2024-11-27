@@ -67,10 +67,22 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const myProfile = catchAsync(async (req: Request, res: Response) => {
+  const token = req.headers.authorization;
+  const result = await UserService.myProfile(token as string);
+  sendResponse<IUser>(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Profile retrieved successfully',
+    data: result,
+  });
+});
+
 export const UserController = {
   createUser,
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
+  myProfile,
 };

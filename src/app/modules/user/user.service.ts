@@ -8,6 +8,9 @@ import { User } from './user.model';
 import { generateBuyerId, generateSellerId } from './user.utils';
 import { IGenericResponse } from '../../../interfaces/common';
 import { StatusCodes } from 'http-status-codes';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
 
 const createUser = async (data: IUser): Promise<IUser> => {
   const isExists = await User.exists({ id: data?.id });
@@ -105,10 +108,22 @@ const deleteUser = async (id: string): Promise<IUser | null> => {
   return result;
 };
 
+const myProfile = async (token: string): Promise<IUser | null> => {
+  const isVerifiedUser = jwtHelpers.verifyToken(
+    token,
+    config.jwt.secret as Secret,
+  );
+  return await User.findOne(
+    { id: isVerifiedUser.id },
+    { _id: 0, name: 1, phoneNumber: 1, address: 1 },
+  );
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
   getSingleUser,
   updateUser,
   deleteUser,
+  myProfile,
 };

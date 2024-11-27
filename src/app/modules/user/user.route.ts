@@ -12,6 +12,12 @@ router.post(
   UserController.createUser,
 );
 
+router.get(
+  '/my-profile',
+  auth(Enum_USER_ROLE.BUYER, Enum_USER_ROLE.SELLER),
+  UserController.myProfile,
+);
+
 router.get('/:id', auth(Enum_USER_ROLE.ADMIN), UserController.getSingleUser);
 router.patch(
   '/:id',
