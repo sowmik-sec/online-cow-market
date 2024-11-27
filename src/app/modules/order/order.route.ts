@@ -13,6 +13,10 @@ router.post(
   OrderController.createOrder,
 );
 
-router.get('/', auth(Enum_USER_ROLE.ADMIN), OrderController.getAllOrders);
+router.get(
+  '/',
+  auth(Enum_USER_ROLE.ADMIN, Enum_USER_ROLE.BUYER, Enum_USER_ROLE.SELLER),
+  OrderController.getAllOrders,
+);
 
 export const OrderRoutes = router;
